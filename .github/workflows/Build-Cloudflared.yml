@@ -1,8 +1,8 @@
 name: Build cloudflared
 
 on:
-  star:
-    types: [created, deleted]
+  watch:
+    types: [started]
 
 jobs:
   build:
