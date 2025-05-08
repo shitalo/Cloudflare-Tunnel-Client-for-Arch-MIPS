@@ -33,25 +33,28 @@ jobs:
       - name: Download release
         run: |
           version=${{ steps.get_release.outputs.version }}
-          curl -L "https://github.com/cloudflare/cloudflared/archive/refs/tags/${version}.tar.gz" -o "cloudflared-${version}.tar.gz"
-          tar -xzf "cloudflared-${version}.tar.gz"
+          mkdir -p /tmp/cloudflared
+          curl -L "https://github.com/cloudflare/cloudflared/archive/refs/tags/${version}.tar.gz" -o "/tmp/cloudflared/cloudflared-${version}.tar.gz"
+          tar -xzf "/tmp/cloudflared/cloudflared-${version}.tar.gz" -C /tmp/cloudflared
 
       - name: Build cloudflared
         run: |
-          cd "cloudflared-${{ steps.get_release.outputs.version }}/cmd/cloudflared/"
+          cd "/tmp/cloudflared/cloudflared-${{ steps.get_release.outputs.version }}/cmd/cloudflared/"
           version=${{ steps.get_release.outputs.version }}
           CGO_ENABLED=0 GOOS=linux GOARCH=mipsle GOMIPS=softfloat go build -v -a -installsuffix cgo -ldflags "-s -w -extldflags '-static' -X 'main.Version=${version}' -X 'main.BuildTime=$(date +%Y-%m-%d-%H%M) UTC'" -o cloudflared .
 
       - name: Upload binary to repository
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # 使用 GitHub 提供的 token
         run: |
           version=${{ steps.get_release.outputs.version }}
-          target_path="cloudflardReleases/${version}/cloudflared"
+          target_path="$GITHUB_WORKSPACE/cloudflardReleases/${version}/"
 
           # 创建目标目录
           mkdir -p "$(dirname "$target_path")"
 
           # 移动二进制文件到目标目录
-          mv cloudflared "$target_path"
+          mv -f "/tmp/cloudflared/cloudflared-${version}/cmd/cloudflared/cloudflared" "${target_path}"
 
           # 提交更改到 GitHub
           git config --local user.email "action@github.com"
