@@ -82,11 +82,22 @@ If you prefer to build your own binary file for the Cloudflare Tunnel client, fo
    - After extracting the downloaded release, navigate to the `cloudflared/cmd/cloudflared/` directory in the terminal.
 
 5. **Run the Build Command:**
-   - Execute the following command to build the binary for MIPS architecture:
+   - Execute the following command to build the binary for MIPS architecture（二选一即可，区别在于执行 ./cloudflared version 时显示版本的号）:
 
-     ```bash
-     CGO_ENABLED=0 GOOS=linux GOARCH=mipsle GOMIPS=softfloat go build -a -installsuffix cgo -ldflags "-s -w -extldflags '-static'" .
-     ```
+      ```bash
+      CGO_ENABLED=0 GOOS=linux GOARCH=mipsle GOMIPS=softfloat go build -a -installsuffix cgo -ldflags "-s -w -extldflags '-static'" .
+      ```
+      
+      添加版本号、编译时间
+      ```bash
+      CGO_ENABLED=0 GOOS=linux GOARCH=mipsle GOMIPS=softfloat go build -v -a -installsuffix cgo -ldflags "-s -w -extldflags '-static' -X 'main.Version=2025.4.2' -X 'main.BuildTime=$(date +%Y-%m-%d-%H%M) UTC'" -o cloudflared .
+      ```
+
+   - 若是此前已经编译过，可以执行下面命令进行清除缓存
+
+      ```bash
+      go clean -cache -modcache -i -r
+      ```
 
 6. **Locate the Built Binary:**
    - Upon successful completion of the build process, you will find a file named `cloudflared` in the same directory. This is your MIPS-compatible binary.
