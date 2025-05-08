@@ -42,10 +42,20 @@ jobs:
           version=${{ steps.get_release.outputs.version }}
           CGO_ENABLED=0 GOOS=linux GOARCH=mipsle GOMIPS=softfloat go build -v -a -installsuffix cgo -ldflags "-s -w -extldflags '-static' -X 'main.Version=${version}' -X 'main.BuildTime=$(date +%Y-%m-%d-%H%M) UTC'" -o cloudflared .
 
-      - name: Upload binary
+      - name: Upload binary to repository
         run: |
           version=${{ steps.get_release.outputs.version }}
-          if [ ! -d "cloudflardReleases/${version}" ]; then
-            mkdir -p "cloudflardReleases/${version}"
-          fi
-          mv cloudflared "cloudflardReleases/${version}/cloudflared"
+          target_path="cloudflardReleases/${version}/cloudflared"
+
+          # 创建目标目录
+          mkdir -p "$(dirname "$target_path")"
+
+          # 移动二进制文件到目标目录
+          mv cloudflared "$target_path"
+
+          # 提交更改到 GitHub
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add "$target_path"
+          git commit -m "Upload cloudflared binary for version $version"
+          git push
