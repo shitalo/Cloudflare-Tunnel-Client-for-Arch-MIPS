@@ -23,6 +23,14 @@ jobs:
           go-version: '>=1.24.3'  # 确保 Go 版本大于或等于 1.24.3
           check-latest: true       # 检查是否有最新版本
  
+      - name: Cache Go modules
+        uses: actions/cache@v2
+        with:
+        path: /home/runner/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+ 
       - name: Get latest release
         id: get_release
         run: |
