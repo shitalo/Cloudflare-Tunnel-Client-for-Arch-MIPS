@@ -51,10 +51,11 @@ jobs:
           target_path="$GITHUB_WORKSPACE/cloudflardReleases/${version}/"
 
           # 创建目标目录
-          mkdir -p "$(dirname "$target_path")"
+          # mkdir -p "$(dirname "$target_path")"
+          mkdir -p "$target_path"
 
           # 移动二进制文件到目标目录
-          mv -f "/tmp/cloudflared/cloudflared-${version}/cmd/cloudflared/cloudflared" "${target_path}"
+          mv -f "/tmp/cloudflared/cloudflared-${version}/cmd/cloudflared/cloudflared" "${target_path}/cloudflared"
 
           # 提交更改到 GitHub
           git config --local user.email "action@github.com"
